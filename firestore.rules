@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global safety net - default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isDefaultAdmin() {
+      return isSignedIn() && (request.auth.token.email == 'admin@college.edu');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        isDefaultAdmin() || (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        )
+      );
+    }
+
+    // Jobs Collection
+    match /jobs/{jobId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isAdmin();
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      // Allow user to get their own profile, or admins to list/get profiles
+      allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isSignedIn() && isAdmin();
+      
+      // Allow profile creation for self, restricting role elevation unless default admin
+      allow create: if isSignedIn() && request.auth.uid == userId && (
+        request.resource.data.role == 'student' || isDefaultAdmin()
+      );
+      
+      // Allow profile updates for self (as long as role is unchanged) or for admins
+      allow update: if isSignedIn() && (
+        (request.auth.uid == userId && request.resource.data.role == resource.data.role) || 
+        isAdmin()
+      );
+    }
+
+    // Applications Collection
+    match /applications/{appId} {
+      // Users can only view their own submissions. Admins can view all.
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      
+      // Students can create application documents representing themselves
+      allow create: if isSignedIn() && 
+                    request.resource.data.userId == request.auth.uid && 
+                    request.resource.data.status == 'Applied';
+                    
+      // Only admins can update/delete applications
+      allow update: if isSignedIn() && isAdmin();
+      allow delete: if isSignedIn() && isAdmin();
+    }
+  }
+}

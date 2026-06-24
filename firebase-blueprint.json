@@ -1,0 +1,91 @@
+{
+  "entities": {
+    "Job": {
+      "title": "Job",
+      "description": "A placement opening or job vacancy posted by a campus recruitment administrator.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier of the job." },
+        "title": { "type": "string", "description": "Job title or role name." },
+        "company": { "type": "string", "description": "Company name." },
+        "companyLogo": { "type": "string", "description": "Company logo URL or base64 data." },
+        "location": { "type": "string", "description": "Work location (e.g., city, remote, hybrid)." },
+        "salary": { "type": "string", "description": "Salary range or stipend scaling." },
+        "experience": { "type": "string", "description": "Experience level required." },
+        "type": { "type": "string", "enum": ["Full Time", "Part Time", "Internship", "Remote", "Hybrid"] },
+        "postedDate": { "type": "string", "format": "date", "description": "Posting date string." },
+        "deadline": { "type": "string", "format": "date", "description": "Application deadline string." },
+        "description": { "type": "string", "description": "Full details of the job." },
+        "responsibilities": { "type": "array", "description": "Responsibilities list." },
+        "skillsRequired": { "type": "array", "description": "Required skills list." },
+        "eligibility": { "type": "string", "description": "Eligibility criteria." },
+        "companyOverview": { "type": "string", "description": "A brief overview of the company." },
+        "category": { "type": "string", "description": "Filtering category name." }
+      },
+      "required": ["id", "title", "company", "type", "postedDate", "deadline"]
+    },
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile representing a student candidate or campus recruitment administrator.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Authentication-backed unique ID." },
+        "email": { "type": "string", "description": "Email address." },
+        "fullName": { "type": "string", "description": "Full name of the user." },
+        "phone": { "type": "string", "description": "Contact phone number." },
+        "college": { "type": "string", "description": "College name." },
+        "department": { "type": "string", "description": "Academic stream/branch." },
+        "graduationYear": { "type": "string", "description": "Graduation year." },
+        "photoUrl": { "type": "string", "description": "Profile picture base64 or URL." },
+        "skills": { "type": "array", "description": "Array of skills tags." },
+        "resumeName": { "type": "string", "description": "Attached PDF resume file name." },
+        "resumeData": { "type": "string", "description": "Base64 payload or representation of the resume of the candidate." },
+        "resumeUrl": { "type": "string", "description": "External reference link to resume." },
+        "linkedinUrl": { "type": "string", "description": "Professional LinkedIn profile URL." },
+        "githubUrl": { "type": "string", "description": "GitHub profile URL." },
+        "appliedJobs": { "type": "object", "description": "Mapping from Job ID to applied details." },
+        "savedJobs": { "type": "array", "description": "Array of bookmarked job IDs." },
+        "role": { "type": "string", "enum": ["student", "admin"] }
+      },
+      "required": ["uid", "email", "fullName", "role"]
+    },
+    "Application": {
+      "title": "Application",
+      "description": "A student's job application linking a candidate to a specific job opening.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier of the application." },
+        "jobId": { "type": "string", "description": "Target job posting ID." },
+        "jobTitle": { "type": "string", "description": "Target job title." },
+        "company": { "type": "string", "description": "Target company name." },
+        "userId": { "type": "string", "description": "Applicant's user ID." },
+        "userFullName": { "type": "string", "description": "Applicant's full name at the time of submission." },
+        "userEmail": { "type": "string", "description": "Applicant's email address." },
+        "userPhone": { "type": "string", "description": "Applicant's contact phone number." },
+        "userCollege": { "type": "string", "description": "Applicant's college." },
+        "userDepartment": { "type": "string", "description": "Applicant's academic department." },
+        "userGraduationYear": { "type": "string", "description": "Applicant's graduation year." },
+        "userSkills": { "type": "array", "description": "Applicant's skills list at submittal." },
+        "appliedDate": { "type": "string", "format": "date", "description": "Application date." },
+        "status": { "type": "string", "enum": ["Applied", "Reviewed", "Shortlisted", "Rejected"] },
+        "resumeName": { "type": "string", "description": "Snapshot file name of the resume." },
+        "resumeData": { "type": "string", "description": "Snapshot base64 pdf representation of the resume." }
+      },
+      "required": ["id", "jobId", "userId", "appliedDate", "status"]
+    }
+  },
+  "firestore": {
+    "/jobs/{jobId}": {
+      "schema": "Job",
+      "description": "Collection of recruiting jobs."
+    },
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Collection of registered student and admin candidate profiles."
+    },
+    "/applications/{appId}": {
+      "schema": "Application",
+      "description": "Collection of submitted applications."
+    }
+  }
+}

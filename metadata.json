@@ -1,0 +1,6 @@
+{
+  "name": "Student Job Portal",
+  "description": "A modern, professional, and responsive Student Job Portal web application designed for college placement cells, featuring advanced search filters, student resume management, tracking, and an admin panel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
